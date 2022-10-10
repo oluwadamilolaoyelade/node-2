@@ -1,0 +1,1 @@
+ALTER TABLE students ADD COLUMN school_id INT NOT NULL references school(id);
