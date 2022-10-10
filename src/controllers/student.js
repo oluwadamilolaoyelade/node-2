@@ -6,7 +6,7 @@ const queries = require('../queries/student_query');
 
 const fetchStudents = async (req, res) => {
     try {
-        const students = await db.any(query.getAllstudents)
+        const students = await db.any(queries.getStudents)
         return res.status(200).json({
             status: 'Success',
             message: 'Students returned',
@@ -22,7 +22,7 @@ const registerStudent = async (req, res) => {
     let { name, address, dob, email, school_id, password } = req.body;
     try {
         const existingEmail = await db.any(queries.findByEmail, [email]);
-        if (!existingEmail) {
+        if (existingEmail.length > 0) {
             return res.status(400).json({
                 status: 'Failed',
                 message: 'Email already exists'
@@ -44,12 +44,20 @@ const registerStudent = async (req, res) => {
 
 const updateStudent = async (req, res) => {
     let { id } = req.params;
-    let { name, address, dob, email, school_id } = req.body;
+    let { name, address, dob } = req.body;
+    // let updateValues = [];
+    // if (name) updateValues.push(name);
+    // if (address) updateValues.push(address);
+    // if (dob) updateValues.push(dob);
+
+    // if (!updateValues.length) return;
+
     try {
-        await db.none(query.updateStudent(name, address, dob, email, school_id, id))
+        const student = await db.any(queries.updateStudent, [name, address, dob, id])
         return res.status(200).json({
             status: 'Success',
             message: 'Student Updated',
+            data: student
         })
     } catch (err) {
         if (err) {
@@ -62,10 +70,26 @@ const updateStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
     let { id } = req.params;
     try {
-        await db.none(query.deleteStudent(id))
+        await db.none(queries.deleteStudent, [id])
         return res.status(200).json({
             status: 'Success',
             message: 'Student Removed',
+        })
+    } catch (err) {
+        console.log(err)
+        return err;
+    }
+}
+
+const getOneStudent = async (req, res) => {
+    let { id } = req.params;
+    try {
+        const student = await db.any(queries.getOneStudent, [id])
+        delete student[0].password;
+        return res.status(200).json({
+            status: 'Success',
+            message: 'Student Retrieved',
+            data: student
         })
     } catch (err) {
         console.log(err)
@@ -84,7 +108,6 @@ const login = async (req, res) => {
                 message: 'No user with email'
             })
         }
-        console.log('Student', student.password)
         const passwordMatch = bcrypt.compareSync(password, student[0].password);
         if (!passwordMatch) {
             return res.status(400).json({
@@ -121,5 +144,6 @@ module.exports = {
     registerStudent,
     updateStudent,
     deleteStudent,
+    getOneStudent,
     login
 }
