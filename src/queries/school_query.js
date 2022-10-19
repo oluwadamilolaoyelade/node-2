@@ -12,7 +12,8 @@ const queries = {
     getSchools: `SELECT * FROM school;`,
     getOneSchool: `SELECT * FROM school WHERE id = $1`,
     deleteSchool: `DELETE FROM school WHERE id = $1`,
-    getSchoolByName: `SELECT * FROM school WHERE name = $1`
+    getSchoolByName: `SELECT * FROM school WHERE name = $1`,
+    findSchoolByEmail: `SELECT email FROM school WHERE email = $1`
 }
 
 module.exports = queries;

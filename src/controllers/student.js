@@ -19,7 +19,8 @@ const fetchStudents = async (req, res) => {
 }
 
 const registerStudent = async (req, res) => {
-    let { name, address, dob, email, school_id, password } = req.body;
+    const { school_id } = req.school
+    let { name, address, dob, email, password } = req.body;
     try {
         const existingEmail = await db.any(queries.findByEmail, [email]);
         if (existingEmail.length > 0) {
